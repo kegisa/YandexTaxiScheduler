@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:13.3
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: kegisa
+      POSTGRES_PASSWORD: pgpass
+      POSTGRES_DB: taxi
+
+  scheduler:
+    image: taxi-scheduler:latest
+    ports:
+      - 8080:8080
+    environment:
+      - YANDEX_CLID=id
+      - YANDEX_APIKEY=key
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taxi
+      - SPRING_DATASOURCE_USERNAME=kegisa
+      - SPRING_DATASOURCE_PASSWORD=pgpass
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
